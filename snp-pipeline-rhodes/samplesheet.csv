@@ -1,0 +1,6 @@
+sample_id,read1,read2
+SRR23393570,../roqueforti_test_data/SRR23393570_1.fastq,../roqueforti_test_data/SRR23393570_2.fastq
+SRR23393572,../roqueforti_test_data/SRR23393572_1.fastq,../roqueforti_test_data/SRR23393572_2.fastq
+SRR23393573,../roqueforti_test_data/SRR23393573_1.fastq,../roqueforti_test_data/SRR23393573_2.fastq
+SRR23393574,../roqueforti_test_data/SRR23393574_1.fastq,../roqueforti_test_data/SRR23393574_2.fastq
+SRR23393575,../roqueforti_test_data/SRR23393575_1.fastq,../roqueforti_test_data/SRR23393575_2.fastq

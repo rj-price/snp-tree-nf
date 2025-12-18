@@ -1,0 +1,320 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "$id": "https://raw.githubusercontent.com/your-repo/proqueforti-variantcalling/master/nextflow_schema.json",
+    "title": "P. roqueforti Variant Calling Pipeline",
+    "description": "Variant calling pipeline for P. roqueforti using Trimmomatic, Bowtie2, SAMtools, and GATK",
+    "type": "object",
+    "definitions": {
+        "input_output_options": {
+            "title": "Input/Output Options",
+            "type": "object",
+            "fa_icon": "fas fa-terminal",
+            "description": "Define where the pipeline should find input data and save output data.",
+            "required": ["reads", "reference", "bowtie2_index"],
+            "properties": {
+                "reads": {
+                    "type": "string",
+                    "format": "file-path",
+                    "description": "Path to input paired-end FASTQ files",
+                    "help_text": "Use glob pattern for paired-end reads, e.g., 'data/*_R{1,2}.fastq.gz'",
+                    "fa_icon": "fas fa-dna"
+                },
+                "reference": {
+                    "type": "string",
+                    "format": "file-path",
+                    "description": "Path to reference genome FASTA file",
+                    "fa_icon": "fas fa-book"
+                },
+                "bowtie2_index": {
+                    "type": "string",
+                    "description": "Path prefix to Bowtie2 index files",
+                    "help_text": "Provide the prefix for Bowtie2 index files (e.g., 'genome' for genome.*.bt2)",
+                    "fa_icon": "fas fa-folder-open"
+                },
+                "outdir": {
+                    "type": "string",
+                    "format": "directory-path",
+                    "description": "Output directory for results",
+                    "default": "./results",
+                    "fa_icon": "fas fa-folder-open"
+                },
+                "adapters": {
+                    "type": "string",
+                    "format": "file-path",
+                    "description": "Path to adapter sequences file for Trimmomatic",
+                    "fa_icon": "fas fa-file"
+                }
+            }
+        },
+        "trimmomatic_options": {
+            "title": "Trimmomatic Options",
+            "type": "object",
+            "description": "Parameters for read trimming with Trimmomatic",
+            "fa_icon": "fas fa-cut",
+            "properties": {
+                "leading": {
+                    "type": "integer",
+                    "default": 3,
+                    "description": "Remove leading low quality bases",
+                    "minimum": 0
+                },
+                "trailing": {
+                    "type": "integer",
+                    "default": 3,
+                    "description": "Remove trailing low quality bases",
+                    "minimum": 0
+                },
+                "minlen": {
+                    "type": "integer",
+                    "default": 36,
+                    "description": "Minimum read length after trimming",
+                    "minimum": 1
+                },
+                "slidingwindow": {
+                    "type": "string",
+                    "default": "4:25",
+                    "description": "Sliding window trimming (windowSize:requiredQuality)",
+                    "pattern": "^\\d+:\\d+$"
+                }
+            }
+        },
+        "bowtie2_options": {
+            "title": "Bowtie2 Alignment Options",
+            "type": "object",
+            "description": "Parameters for read alignment with Bowtie2",
+            "fa_icon": "fas fa-align-center",
+            "properties": {
+                "max_fragment_length": {
+                    "type": "integer",
+                    "default": 1000,
+                    "description": "Maximum fragment length for paired-end alignment",
+                    "minimum": 100
+                },
+                "bowtie2_preset": {
+                    "type": "string",
+                    "default": "very-sensitive-local",
+                    "description": "Bowtie2 alignment preset",
+                    "enum": [
+                        "very-fast",
+                        "fast",
+                        "sensitive",
+                        "very-sensitive",
+                        "very-fast-local",
+                        "fast-local",
+                        "sensitive-local",
+                        "very-sensitive-local"
+                    ]
+                }
+            }
+        },
+        "filtering_options": {
+            "title": "Filtering Options",
+            "type": "object",
+            "description": "Parameters for BAM file filtering",
+            "fa_icon": "fas fa-filter",
+            "properties": {
+                "min_mapping_quality": {
+                    "type": "integer",
+                    "default": 10,
+                    "description": "Minimum mapping quality score for filtering reads",
+                    "minimum": 0,
+                    "maximum": 60
+                },
+                "min_depth": {
+                    "type": "integer",
+                    "default": 10,
+                    "description": "Minimum depth for variant calling",
+                    "minimum": 1
+                }
+            }
+        },
+        "gatk_filtering_options": {
+            "title": "GATK Variant Filtering Options",
+            "type": "object",
+            "description": "Parameters for GATK VariantFiltration",
+            "fa_icon": "fas fa-sliders-h",
+            "properties": {
+                "filter_qual": {
+                    "type": "number",
+                    "default": 30,
+                    "description": "Minimum variant quality score (QUAL)",
+                    "minimum": 0
+                },
+                "filter_dp": {
+                    "type": "integer",
+                    "default": 10,
+                    "description": "Minimum depth (DP)",
+                    "minimum": 1
+                },
+                "filter_qd": {
+                    "type": "number",
+                    "default": 2.0,
+                    "description": "Minimum quality by depth (QD)",
+                    "minimum": 0
+                },
+                "filter_fs": {
+                    "type": "number",
+                    "default": 60.0,
+                    "description": "Maximum Fisher strand bias (FS)",
+                    "minimum": 0
+                },
+                "filter_mq": {
+                    "type": "number",
+                    "default": 40.0,
+                    "description": "Minimum mapping quality (MQ)",
+                    "minimum": 0,
+                    "maximum": 60
+                },
+                "filter_sor": {
+                    "type": "number",
+                    "default": 3.0,
+                    "description": "Maximum strand odds ratio (SOR)",
+                    "minimum": 0
+                },
+                "filter_mqranksum": {
+                    "type": "number",
+                    "default": -12.5,
+                    "description": "Minimum MappingQualityRankSum"
+                },
+                "filter_readposranksum": {
+                    "type": "number",
+                    "default": -8.0,
+                    "description": "Minimum ReadPosRankSum"
+                }
+            }
+        },
+        "ngsadmix_options": {
+            "title": "NGSadmix Options",
+            "type": "object",
+            "description": "Parameters for population structure analysis with NGSadmix",
+            "fa_icon": "fas fa-project-diagram",
+            "properties": {
+                "run_ngsadmix": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Run NGSadmix analysis for population structure"
+                },
+                "min_k": {
+                    "type": "integer",
+                    "default": 2,
+                    "description": "Minimum number of clusters (K) to test",
+                    "minimum": 2
+                },
+                "max_k": {
+                    "type": "integer",
+                    "default": 6,
+                    "description": "Maximum number of clusters (K) to test",
+                    "minimum": 2
+                },
+                "ngsadmix_runs": {
+                    "type": "integer",
+                    "default": 100,
+                    "description": "Number of independent runs per K value",
+                    "minimum": 1
+                },
+                "min_informative_individuals": {
+                    "type": "integer",
+                    "default": 4,
+                    "description": "Minimum number of informative individuals",
+                    "minimum": 1
+                }
+            }
+        },
+        "downstream_analysis_options": {
+            "title": "Downstream Analysis Options",
+            "type": "object",
+            "description": "Parameters for additional analyses (SplitsTree, Ade4 PCA)",
+            "fa_icon": "fas fa-chart-line",
+            "properties": {
+                "run_splitstree": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Run SplitsTree neighbour-net analysis"
+                },
+                "run_pca": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Run Ade4 PCA analysis"
+                },
+                "pca_center": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Center data for PCA"
+                },
+                "pca_scale": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Scale data for PCA (false = unscaled as in methods)"
+                }
+            }
+        },
+        "resource_options": {
+            "title": "Resource Options",
+            "type": "object",
+            "description": "Maximum resource limits",
+            "fa_icon": "fas fa-server",
+            "properties": {
+                "max_memory": {
+                    "type": "string",
+                    "default": "128.GB",
+                    "description": "Maximum memory per process",
+                    "pattern": "^\\d+(\\.\\d+)?\\.?[KMGT]?B$"
+                },
+                "max_cpus": {
+                    "type": "integer",
+                    "default": 16,
+                    "description": "Maximum number of CPUs per process",
+                    "minimum": 1
+                },
+                "max_time": {
+                    "type": "string",
+                    "default": "240.h",
+                    "description": "Maximum time per process",
+                    "pattern": "^\\d+(\\.\\d+)?\\.[smhd]$"
+                }
+            }
+        },
+        "generic_options": {
+            "title": "Generic Options",
+            "type": "object",
+            "description": "General pipeline options",
+            "fa_icon": "fas fa-cog",
+            "properties": {
+                "help": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Display help text and exit"
+                }
+            }
+        }
+    },
+    "allOf": [
+        {
+            "$ref": "#/definitions/input_output_options"
+        },
+        {
+            "$ref": "#/definitions/trimmomatic_options"
+        },
+        {
+            "$ref": "#/definitions/bowtie2_options"
+        },
+        {
+            "$ref": "#/definitions/filtering_options"
+        },
+        {
+            "$ref": "#/definitions/gatk_filtering_options"
+        },
+        {
+            "$ref": "#/definitions/ngsadmix_options"
+        },
+        {
+            "$ref": "#/definitions/downstream_analysis_options"
+        },
+        {
+            "$ref": "#/definitions/resource_options"
+        },
+        {
+            "$ref": "#/definitions/generic_options"
+        }
+    ]
+}

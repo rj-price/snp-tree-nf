@@ -1,0 +1,14 @@
+name: snp_pipeline
+channels:
+  - bioconda
+  - conda-forge
+  - defaults
+dependencies:
+  - fastqc
+  - multiqc
+  - trimmomatic
+  - bwa
+  - samtools
+  - bcftools
+  - biopython
+  - 
