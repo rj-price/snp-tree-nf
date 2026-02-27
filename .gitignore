@@ -1,0 +1,32 @@
+# Nextflow files
+.nextflow/
+.nextflow.log*
+work/
+
+# Pipeline outputs
+results/
+
+# Data and Reference (Genomic data is typically too large for git)
+data/
+ref/
+*.fastq
+*.fna
+*.fa
+*.bam
+*.bai
+*.vcf.gz
+*.tbi
+
+# Python
+__pycache__/
+*.py[cod]
+
+# System files
+.DS_Store
+Thumbs.db
+
+# HPC/Batch logs
+slurm-*.out
+
+# Samplesheets (if you want to keep templates but not specific runs)
+samplesheet.csv
