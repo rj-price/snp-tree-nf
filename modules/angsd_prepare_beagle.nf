@@ -17,18 +17,18 @@ process ANGSD_PREPARE_BEAGLE {
     # Create BAM list file
     ls *.bam > bam.list
     
-    angsd 
-        -bam bam.list 
-        -ref ${reference} 
-        -nThreads ${task.cpus} 
-        -uniqueOnly 1 
-        -remove_bads 1 
-        -only_proper_pairs 1 
-        -GL 1 
-        -doMajorMinor 1 
-        -doMaf 1 
-        -doGlf 2 
-        -SNP_pval 1e-6 
+    angsd \\
+        -bam bam.list \\
+        -ref ${reference} \\
+        -nThreads ${task.cpus} \\
+        -uniqueOnly 1 \\
+        -remove_bads 1 \\
+        -only_proper_pairs 1 \\
+        -GL 1 \\
+        -doMajorMinor 1 \\
+        -doMaf 1 \\
+        -doGlf 2 \\
+        -SNP_pval 1e-6 \\
         -out genotype_likelihoods
 
     cat <<-END_VERSIONS > versions.yml

@@ -90,19 +90,19 @@ def write_nexus(samples, genotypes, num_sites, output_file):
     """Write alignment in NEXUS format."""
     with open(output_file, 'w') as f:
         # NEXUS header
-        f.write("#NEXUS\\n\\n")
-        f.write("BEGIN DATA;\\n")
-        f.write(f"    DIMENSIONS NTAX={len(samples)} NCHAR={num_sites};\\n")
-        f.write("    FORMAT DATATYPE=DNA MISSING=N GAP=-;\\n")
-        f.write("    MATRIX\\n")
+        f.write("#NEXUS\n\n")
+        f.write("BEGIN DATA;\n")
+        f.write(f"    DIMENSIONS NTAX={len(samples)} NCHAR={num_sites};\n")
+        f.write("    FORMAT DATATYPE=DNA MISSING=N GAP=-;\n")
+        f.write("    MATRIX\n")
         
         # Write each sequence
         for sample in samples:
             sequence = ''.join(genotypes[sample])
-            f.write(f"        {sample}    {sequence}\\n")
+            f.write(f"        {sample}    {sequence}\n")
         
-        f.write("    ;\\n")
-        f.write("END;\\n")
+        f.write("    ;\n")
+        f.write("END;\n")
 
 
 def main(args=None):

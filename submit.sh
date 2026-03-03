@@ -13,4 +13,5 @@ nextflow run main.nf \
     --fasta ref/GCA_030518555.1_ASM3051855v1_genomic.fna \
     --adapters TruSeq3-PE.fa \
     --outdir results \
-    #-resume
+    --run_admixture \
+    -resume

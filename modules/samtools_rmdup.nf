@@ -12,8 +12,8 @@ process SAMTOOLS_RMDUP {
 
     script:
     """
-    samtools rmdup 
-        ${bam} 
+    samtools rmdup \\
+        ${bam} \\
         ${meta.id}.dedup.bam
 
     cat <<-END_VERSIONS > versions.yml

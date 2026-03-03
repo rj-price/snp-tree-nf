@@ -27,6 +27,7 @@ Thumbs.db
 
 # HPC/Batch logs
 slurm-*.out
+submit.sh
 
 # Samplesheets (if you want to keep templates but not specific runs)
 samplesheet.csv

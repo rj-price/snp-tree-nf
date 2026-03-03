@@ -90,14 +90,13 @@ def write_phylip(samples, genotypes, num_sites, output_file):
     """Write alignment in PHYLIP format."""
     with open(output_file, 'w') as f:
         # Header line: number of sequences and sequence length
-        f.write(f"{len(samples)} {num_sites}\\n")
+        f.write(f"{len(samples)} {num_sites}\n")
         
         # Write each sequence
         for sample in samples:
             sequence = ''.join(genotypes[sample])
-            # PHYLIP format: 10 char name, space, sequence
-            name = sample[:10].ljust(10)
-            f.write(f"{name} {sequence}\\n")
+            # Relaxed PHYLIP format: name followed by space then sequence
+            f.write(f"{sample} {sequence}\n")
 
 
 def main(args=None):

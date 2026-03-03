@@ -12,13 +12,24 @@ process RAXML {
 
     script:
     """
-    raxmlHPC-PTHREADS-SSE3 \\
-        -T ${task.cpus} \\
-        -m GTRGAMMA \\
-        -p 12345 \\
-        -s $phylip \\
-        -n tree \\
-        -# 100
+    # RAxML requires at least 4 taxa
+    NUM_TAXA=\$(head -n 1 ${phylip} | awk '{print \$1}')
+    
+    if [ "\$NUM_TAXA" -ge 4 ]; then
+        raxmlHPC-PTHREADS-SSE3 \\
+            -T ${task.cpus} \\
+            -m GTRGAMMA \\
+            -p 12345 \\
+            -s $phylip \\
+            -n tree \\
+            -# 100
+    else
+        echo "WARNING: Only \$NUM_TAXA species found in alignment. RAxML requires at least 4. Skipping tree construction."
+        touch RAxML_bestTree.tree
+        touch RAxML_info.tree
+        touch RAxML_log.tree
+        touch RAxML_result.tree
+    fi
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

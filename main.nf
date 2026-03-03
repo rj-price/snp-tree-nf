@@ -26,11 +26,9 @@ include { VCF_TO_PHYLIP } from './modules/vcf_to_phylip'
 include { RAXML } from './modules/raxml'
 include { VCF_TO_NEXUS } from './modules/vcf_to_nexus'
 include { ANGSD_PREPARE_BEAGLE } from './modules/angsd_prepare_beagle'
-include { NGSADMIX } from './modules/ngsadmix'
-include { VCF_TO_MATRIX } from './modules/vcf_to_matrix'
-include { ADE4_PCA } from './modules/ade4_pca'
-include { CREATE_FASTA_LIST } from './modules/create_fasta_list'
-include { SANS_SPLITS } from './modules/sans_splits'
+include { PCANGSD } from './modules/pcangsd'
+include { GET_SAMPLE_NAMES } from './modules/get_sample_names'
+include { PLOT_PCANGSD } from './modules/plot_pcangsd'
 include { MULTIQC } from './modules/multiqc'
 
 /*
@@ -153,7 +151,7 @@ workflow {
     // MODULE: Variant calling with BCFtools mpileup and call (JOINT CALLING)
     //
     BCFTOOLS_MPILEUP(
-        SAMTOOLS_INDEX.out.bam_bai.map { _meta, bam -> bam }.collect(),
+        SAMTOOLS_INDEX.out.bam_bai.map { _meta, bam, _bai -> bam }.collect(),
         SAMTOOLS_INDEX.out.bam_bai.map { _meta, _bam, bai -> bai }.collect(),
         SAMTOOLS_FAIDX.out.fasta_fai
     )
@@ -184,9 +182,9 @@ workflow {
     ch_versions = ch_versions.mix(VCF_TO_NEXUS.out.versions)
 
     //
-    // OPTIONAL: NGSadmix analysis
+    // OPTIONAL: Admixture analysis with PCAngsd
     //
-    if (params.run_ngsadmix) {
+    if (params.run_admixture) {
         ANGSD_PREPARE_BEAGLE(
             SAMTOOLS_INDEX.out.bam_bai.map { _meta, bam, _bai -> bam }.collect(),
             SAMTOOLS_INDEX.out.bam_bai.map { _meta, _bam, bai -> bai }.collect(),
@@ -195,39 +193,21 @@ workflow {
         )
         ch_versions = ch_versions.mix(ANGSD_PREPARE_BEAGLE.out.versions)
 
-        NGSADMIX(
-            ANGSD_PREPARE_BEAGLE.out.beagle,
-            params.ngsadmix_k,
-            params.ngsadmix_runs
+        PCANGSD(
+            ANGSD_PREPARE_BEAGLE.out.beagle
         )
-        ch_versions = ch_versions.mix(NGSADMIX.out.versions)
-    }
+        ch_versions = ch_versions.mix(PCANGSD.out.versions)
 
-    //
-    // OPTIONAL: PCA analysis
-    //
-    if (params.run_pca) {
-        VCF_TO_MATRIX(BCFTOOLS_FILTER.out.vcf)
-        ch_versions = ch_versions.mix(VCF_TO_MATRIX.out.versions)
-
-        ADE4_PCA(
-            VCF_TO_MATRIX.out.matrix,
-            VCF_TO_MATRIX.out.samples
+        GET_SAMPLE_NAMES(
+            SAMTOOLS_INDEX.out.bam_bai.map { meta, _bam, _bai -> meta.id }.collect()
         )
-        ch_versions = ch_versions.mix(ADE4_PCA.out.versions)
-    }
 
-    //
-    // OPTIONAL: SANS splits analysis
-    //
-    if (params.run_sans) {
-        if (!params.genome_list) {
-            error "Please provide a genome list using --genome_list for SANS analysis"
-        }
-        SANS_SPLITS(
-            file(params.genome_list, checkIfExists: true)
+        PLOT_PCANGSD(
+            PCANGSD.out.admix,
+            PCANGSD.out.cov,
+            GET_SAMPLE_NAMES.out.samples
         )
-        ch_versions = ch_versions.mix(SANS_SPLITS.out.versions)
+        ch_versions = ch_versions.mix(PLOT_PCANGSD.out.versions)
     }
     
     //
@@ -243,6 +223,13 @@ workflow {
         ch_multiqc_files.collect()
     )
     ch_versions = ch_versions.mix(MULTIQC.out.versions)
+    
+    //
+    // MODULE: Collect software versions
+    //
+    ch_versions
+        .unique()
+        .collectFile(name: 'software_versions.yml', storeDir: "${params.outdir}/pipeline_info")
     
     //
     // Workflow completion handler
