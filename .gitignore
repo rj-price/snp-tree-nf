@@ -30,4 +30,4 @@ slurm-*.out
 submit.sh
 
 # Samplesheets (if you want to keep templates but not specific runs)
-samplesheet.csv
+my_samplesheet.csv

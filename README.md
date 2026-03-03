@@ -31,7 +31,7 @@ This pipeline automates the entire process from raw FASTQ files to phylogenetic 
 
 ### 1. Prepare Input Files
 
-Create a `samplesheet.csv` with the following headers:
+Create a `my_samplesheet.csv` with the following headers:
 ```csv
 sample_id,read1,read2
 Sample1,data/Sample1_R1.fastq.gz,data/Sample1_R2.fastq.gz
@@ -43,7 +43,7 @@ Sample2,data/Sample2_R1.fastq.gz,data/Sample2_R2.fastq.gz
 ```bash
 nextflow run main.nf \
     -profile singularity \
-    --input samplesheet.csv \
+    --input my_samplesheet.csv \
     --fasta ref/reference.fna \
     --adapters TruSeq3-PE.fa \
     --outdir results
@@ -80,7 +80,7 @@ nextflow run main.nf \
 
 Example for HPC with Slurm:
 ```bash
-nextflow run main.nf -profile slurm,singularity --input samplesheet.csv --fasta ref/ref.fna
+nextflow run main.nf -profile slurm,singularity --input my_samplesheet.csv --fasta ref/ref.fna
 ```
 
 ## Variant Filtering Criteria
